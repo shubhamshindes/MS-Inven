@@ -13,9 +13,9 @@ import java.util.List;
 
 @FeignClient(name = "stock-service", url = "${stock.service.url}")
 public interface StockServiceClient {
-    @PostMapping("/stocks")
+    @PostMapping("/api/stocks")
     StockDTO createStock(@RequestBody StockRequestDTO stockDTO);
 
-    @GetMapping("/stocks/product/{productId}")
+    @GetMapping("/api/stocks/product/{productId}")
     List<StockDTO> getStocksByProductId(@PathVariable Long productId);
 }

@@ -28,7 +28,7 @@ public class StockController {
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity<List<StockDTO>> getStocksByProductId(@PathVariable Long productId) {
+        public ResponseEntity<List<StockDTO>> getStocksByProductId(@PathVariable Long productId) {
         return ResponseEntity.ok(stockService.getStocksByProductId(productId));
     }
 

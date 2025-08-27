@@ -23,8 +23,18 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public StockDTO createStock(StockRequestDTO stockRequestDTO) {
-        Stock stock = modelMapper.map(stockRequestDTO, Stock.class);
+        /*Stock stock = modelMapper.map(stockRequestDTO, Stock.class);
         stock.setLastUpdated(LocalDateTime.now());
+        Stock savedStock = stockRepository.save(stock);
+        return convertToDTO(savedStock);*/
+        // Use manual mapping instead of ModelMapper above
+        Stock stock = new Stock();
+        stock.setProductId(stockRequestDTO.getProductId());
+        stock.setShelfId(stockRequestDTO.getShelfId());
+        stock.setMinThreshold(stockRequestDTO.getMinThreshold());
+        stock.setQuantity(stockRequestDTO.getQuantity());
+        stock.setLastUpdated(LocalDateTime.now());
+
         Stock savedStock = stockRepository.save(stock);
         return convertToDTO(savedStock);
     }
