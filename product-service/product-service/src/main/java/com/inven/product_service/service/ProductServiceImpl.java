@@ -89,7 +89,7 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.delete(product);
     }
-
+//to update particular stocks threshold and reOrder quantity in database
     @Override
     public ProductDTO updateReorderConfig(ProductReorderConfigDTO config) {
         Product product = productRepository.findById(config.getProductId())
