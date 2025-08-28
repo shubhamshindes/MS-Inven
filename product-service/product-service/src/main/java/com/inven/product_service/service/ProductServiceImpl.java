@@ -2,20 +2,24 @@ package com.inven.product_service.service;
 
 import com.inven.product_service.dto.*;
 import com.inven.product_service.exception.ResourceNotFoundException;
-import com.inven.product_service.feign.StockServiceClient;
-import com.inven.product_service.feign.SupplierServiceClient;
 import com.inven.product_service.model.Product;
 import com.inven.product_service.repository.ProductRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -103,27 +107,27 @@ public class ProductServiceImpl implements ProductService {
         return convertToDTO(updatedProduct);
     }
 
+    @CircuitBreaker(name = "stockService", fallbackMethod = "getProductsNeedingReorderFallback")
+    @TimeLimiter(name = "stockService")
+    @Retry(name = "stockService")
     @Override
     public List<ProductDTO> getProductsNeedingReorder() {
-        // Get all products with auto-reorder enabled
         List<Product> autoReorderProducts = productRepository.findByIsAutoReorderTrue();
 
         return autoReorderProducts.stream()
                 .map(this::convertToDTO)
                 .filter(productDTO -> {
-                    try {
-                        // For each product, check stock levels using Feign client
-                        List<StockDTO> stocks = stockServiceClient.getStocksByProductId(productDTO.getProductId());
-
-                        // Check if any stock location is below threshold
-                        return stocks.stream()
-                                .anyMatch(stock -> stock.getQuantity() <= productDTO.getReorderThreshold());
-                    } catch (Exception e) {
-                        // Handle case where stock service is unavailable
-                        return false;
-                    }
+                    List<StockDTO> stocks = stockServiceClient.getStocksByProductId(productDTO.getProductId());
+                    return stocks.stream()
+                            .anyMatch(stock -> stock.getQuantity() <= productDTO.getReorderThreshold());
                 })
                 .collect(Collectors.toList());
+    }
+
+    public List<ProductDTO> getProductsNeedingReorderFallback(Exception e) {
+        log.warn("Fallback triggered for getProductsNeedingReorder due to: {}", e.getMessage());
+        // Return empty list or cached data as fallback
+        return Collections.emptyList();
     }
 
     private ProductDTO convertToDTO(Product product) {

@@ -1,4 +1,4 @@
-package com.inven.product_service.dto.kafka;
+package com.inven.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
