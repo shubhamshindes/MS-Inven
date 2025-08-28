@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableFeignClients(basePackages = "com.inven.product_service.feign")
+@EnableScheduling
+@EnableCircuitBreaker
 public class ProductServiceApplication {
 
 	public static void main(String[] args) {
