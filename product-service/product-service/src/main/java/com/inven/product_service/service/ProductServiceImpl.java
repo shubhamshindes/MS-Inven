@@ -1,5 +1,9 @@
 package com.inven.product_service.service;
 
+import com.inven.common.dto.ProductDTO;
+import com.inven.common.dto.StockDTO;
+import com.inven.common.feign.StockServiceClient;
+import com.inven.common.feign.SupplierServiceClient;
 import com.inven.product_service.dto.*;
 import com.inven.product_service.exception.ResourceNotFoundException;
 import com.inven.product_service.model.Product;
@@ -23,22 +27,23 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final SupplierServiceClient supplierServiceClient;
-    private final StockServiceClient stockServiceClient;
     private final ModelMapper modelMapper;
+    private final StockServiceClient stockServiceClient; // Add this
+    private final SupplierServiceClient supplierServiceClient; // Add this
+
 
     @Override
     @Transactional
     public ProductDTO createProduct(ProductRequestDTO productRequestDTO) {
         // Verify supplier exists
-        SupplierDTO supplier = supplierServiceClient.getSupplierById(productRequestDTO.getSupplierId());
+        com.inven.common.dto.SupplierDTO supplier = supplierServiceClient.getSupplierById(productRequestDTO.getSupplierId());
 
         // Create product
         Product product = modelMapper.map(productRequestDTO, Product.class);
         Product savedProduct = productRepository.save(product);
 
         // Create initial stock
-        StockRequestDTO stockRequestDTO = new StockRequestDTO();
+        com.inven.common.dto.StockRequestDTO stockRequestDTO = new com.inven.common.dto.StockRequestDTO();
         stockRequestDTO.setProductId(savedProduct.getProductId());
         stockRequestDTO.setShelfId(productRequestDTO.getShelfId());
         stockRequestDTO.setQuantity(productRequestDTO.getInitialQuantity());
@@ -58,11 +63,11 @@ public class ProductServiceImpl implements ProductService {
         ProductDTO productDTO = convertToDTO(product);
 
         // Fetch stocks for this product
-        List<StockDTO> stocks = stockServiceClient.getStocksByProductId(id);
+        List<com.inven.common.dto.StockDTO> stocks = stockServiceClient.getStocksByProductId(id);
         productDTO.setStocks(stocks);
 
         // Fetch supplier details
-        SupplierDTO supplier = supplierServiceClient.getSupplierById(product.getSupplierId());
+        com.inven.common.dto.SupplierDTO supplier = supplierServiceClient.getSupplierById(product.getSupplierId());
         productDTO.setSupplier(supplier);
 
         return productDTO;

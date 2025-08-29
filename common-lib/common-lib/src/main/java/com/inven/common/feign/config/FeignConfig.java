@@ -2,6 +2,9 @@ package com.inven.common.feign.config;
 
 import feign.Feign;
 
+
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
 import io.github.resilience4j.feign.FeignDecorators;
 import io.github.resilience4j.feign.Resilience4jFeign;
 import org.springframework.context.annotation.Bean;

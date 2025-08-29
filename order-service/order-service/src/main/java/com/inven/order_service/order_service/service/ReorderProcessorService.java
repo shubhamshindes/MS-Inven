@@ -1,10 +1,17 @@
 package com.inven.order_service.order_service.service;
 
+import com.inven.common.dto.ReorderEvent;
+import com.inven.common.dto.SupplierDTO;
+import com.inven.common.feign.SupplierServiceClient;
+import com.inven.order_service.order_service.model.PurchaseOrder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -19,6 +26,7 @@ public class ReorderProcessorService {
 
         try {
             // Get supplier details
+            SupplierServiceClient supplierServiceClient;
             SupplierDTO supplier = supplierServiceClient.getSupplierById(event.getSupplierId());
 
             // Create purchase order

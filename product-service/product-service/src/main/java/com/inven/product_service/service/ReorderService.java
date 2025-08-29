@@ -1,5 +1,8 @@
 package com.inven.product_service.service;
 
+import com.inven.common.dto.ReorderEvent;
+import com.inven.common.feign.StockServiceClient;
+import com.inven.common.feign.SupplierServiceClient;
 import com.inven.product_service.model.Product;
 import com.inven.product_service.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +23,8 @@ public class ReorderService {
 
     private final KafkaTemplate<String, ReorderEvent> kafkaTemplate;
     private final ProductRepository productRepository;
-    private final SupplierServiceClient supplierServiceClient;
-    private final StockServiceClient stockServiceClient;
+    private final StockServiceClient stockServiceClient; // Add this
+    private final SupplierServiceClient supplierServiceClient; // Add this
     private final ModelMapper modelMapper;
 
     private static final String REORDER_TOPIC = "product-reorder-events";

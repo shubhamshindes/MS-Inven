@@ -1,5 +1,7 @@
-package com.inven.product_service.dto;
+package com.inven.common.dto;
+
 import lombok.Data;
+
 import java.time.LocalDate;
 import java.util.List;
 
